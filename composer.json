@@ -1,0 +1,16 @@
+{
+  "name": "dunghv/php_algorithm",
+  "description": "Some algorithms setup by php code",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Hoang Viet Dung",
+      "email": "dunghv@coccoc.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Algorithm\\": "src/"
+    }
+  }
+}

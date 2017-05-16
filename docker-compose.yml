@@ -1,0 +1,18 @@
+version: "2"
+services:
+  php:
+    build:
+      context: docker/php7
+    container_name: algorithm-php
+    volumes:
+      - .:/var/www/
+    ports:
+      - 9000:9000 # xdebug
+
+  composer:
+      image: composer/composer
+      depends_on:
+         - php
+      volumes_from:
+         - php
+      working_dir: /var/www/
