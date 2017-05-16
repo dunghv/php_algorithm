@@ -13,20 +13,14 @@ use Algorithm\Matrix\Sum\MatrixSumSolverInterface;
 class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationSolverInterface
 {
     /**
-     * @var SquareMatrixPartition
-     */
-    private $matrixPartition;
-    /**
      * @var MatrixSumSolverInterface
      */
     private $sumSolver;
 
-    public function __construct(SquareMatrixPartition $matrixPartition, MatrixSumSolverInterface $sumSolver)
+    public function __construct(MatrixSumSolverInterface $sumSolver)
     {
-        $this->matrixPartition = $matrixPartition;
         $this->sumSolver = $sumSolver;
     }
-
 
     /**
      * @param array $a
@@ -35,36 +29,55 @@ class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationS
      */
     public function solve(array $a, array $b): array
     {
-        if (1 === count($a)) {
-            return [[$a[0][0] * $b[0][0]]];
+        return $this->multiply($a, $b, 0, 0, 0, 0, count($a));
+    }
+
+    /**
+     * @param array $a
+     * @param array $b
+     * @param int $startRowA start row of sub matrix A
+     * @param int $startColA start column of sub matrix A
+     * @param int $startRowB start row of sub matrix A
+     * @param int $startColB start column of sub matrix A
+     * @param int $matrixSize
+     * @return array
+     */
+    private function multiply(array $a, array $b, int $startRowA, int $startColA, int $startRowB, int $startColB, int $matrixSize): array
+    {
+        if (1 === $matrixSize) {
+            return [[$a[$startRowA][$startColA] * $b[$startRowB][$startColB]]];
         }
 
-        $partitionsA = $this->matrixPartition->partition($a);
-        $partitionsB = $this->matrixPartition->partition($b);
+        $subMatrixSize = $matrixSize / 2;
+
+        $startRowA2 = $startRowA + $subMatrixSize;
+        $startColA2 = $startColA + $subMatrixSize;
+        $startRowB2 = $startRowB + $subMatrixSize;
+        $startColB2 = $startColB + $subMatrixSize;
 
         $c11 = $this->sumSolver->solve(
-            $this->solve($partitionsA[0][0], $partitionsB[0][0]),
-            $this->solve($partitionsA[0][1], $partitionsB[1][0])
+            $this->multiply($a, $b, $startRowA, $startColA, $startRowB, $startColB, $subMatrixSize),
+            $this->multiply($a, $b, $startRowA, $startColA2, $startRowB2, $startColB, $subMatrixSize)
         );
 
         $c12 = $this->sumSolver->solve(
-            $this->solve($partitionsA[0][0], $partitionsB[0][1]),
-            $this->solve($partitionsA[0][1], $partitionsB[1][1])
+            $this->multiply($a, $b,  $startRowA, $startColA, $startRowB, $startColB2, $subMatrixSize),
+            $this->multiply($a, $b,  $startRowA, $startColA2, $startRowB2, $startColB2, $subMatrixSize)
         );
 
         $c21 = $this->sumSolver->solve(
-            $this->solve($partitionsA[1][0], $partitionsB[0][0]),
-            $this->solve($partitionsA[1][1], $partitionsB[1][0])
+            $this->multiply($a, $b,  $startRowA2, $startColA, $startRowB, $startColB, $subMatrixSize),
+            $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB, $subMatrixSize)
         );
 
         $c22 = $this->sumSolver->solve(
-            $this->solve($partitionsA[1][0], $partitionsB[0][1]),
-            $this->solve($partitionsA[1][1], $partitionsB[1][1])
+            $this->multiply($a, $b,  $startRowA2, $startColA, $startRowB, $startColB2, $subMatrixSize),
+            $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB2, $subMatrixSize)
         );
 
-        $c = [];
         $halfSize = count($c11);
 
+        $c = [];
         $c = $this->mergeMatrix($c, $c11, 0, 0);
         $c = $this->mergeMatrix($c, $c12, 0, $halfSize);
         $c = $this->mergeMatrix($c, $c21, $halfSize, 0);
