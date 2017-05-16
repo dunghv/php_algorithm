@@ -1,13 +1,13 @@
 <?php
 
-namespace Algorithm\Matrix\Sum;
+namespace Algorithm\Matrix\Summation;
 
 
 /**
  * Class SquareMatrixSumSolver
  * @package Algorithm\Matrix\Sum
  */
-class SquareMatrixSumSolver implements MatrixSumSolverInterface
+class SquareMatrixSummationSolver implements MatrixSummationSolverInterface
 {
     /**
      * @param array $a

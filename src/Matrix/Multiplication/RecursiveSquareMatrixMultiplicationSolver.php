@@ -3,7 +3,7 @@
 namespace Algorithm\Matrix\Multiplication;
 
 use Algorithm\Matrix\Helper\SquareMatrixPartition;
-use Algorithm\Matrix\Sum\MatrixSumSolverInterface;
+use Algorithm\Matrix\Summation\MatrixSummationSolverInterface;
 
 
 /**
@@ -13,11 +13,11 @@ use Algorithm\Matrix\Sum\MatrixSumSolverInterface;
 class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationSolverInterface
 {
     /**
-     * @var MatrixSumSolverInterface
+     * @var MatrixSummationSolverInterface
      */
     private $sumSolver;
 
-    public function __construct(MatrixSumSolverInterface $sumSolver)
+    public function __construct(MatrixSummationSolverInterface $sumSolver)
     {
         $this->sumSolver = $sumSolver;
     }
@@ -77,6 +77,7 @@ class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationS
 
         $halfSize = count($c11);
 
+        // bad idea
         $c = [];
         $c = $this->mergeMatrix($c, $c11, 0, 0);
         $c = $this->mergeMatrix($c, $c12, 0, $halfSize);

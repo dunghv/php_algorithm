@@ -5,13 +5,13 @@ use Algorithm\Matrix\Formatter\MatrixFormatter;
 use Algorithm\Matrix\Generator\MatrixGenerator;
 use Algorithm\Matrix\Multiplication\RecursiveSquareMatrixMultiplicationSolver;
 use Algorithm\Matrix\Multiplication\SimpleSquareMatrixMultiplicationSolver;
-use Algorithm\Matrix\Sum\SquareMatrixSumSolver;
+use Algorithm\Matrix\Summation\SquareMatrixSummationSolver;
 use Algorithm\Profiler;
 
 
 $matrixFormatter = new MatrixFormatter();
 $matrixGenerator = new MatrixGenerator();
-$matrixSumSolver = new SquareMatrixSumSolver();
+$matrixSumSolver = new SquareMatrixSummationSolver();
 
 $multiplicationSolvers = [
     'Simple'    => new SimpleSquareMatrixMultiplicationSolver(),
