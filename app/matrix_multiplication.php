@@ -39,12 +39,12 @@ if ($size < 10) {
 /** @var \Algorithm\Matrix\Multiplication\MatrixMultiplicationSolverInterface $solver */
 foreach ($multiplicationSolvers as $solverName => $solver) {
     echo PHP_EOL . PHP_EOL . PHP_EOL;
-    Profiler::start('multiply');
+    Profiler::start($solverName);
     $c = $solver->solve($a, $b);
-    Profiler::end('multiply');
+    Profiler::end($solverName);
 
     echo PHP_EOL . $solverName;
-    echo PHP_EOL . Profiler::stats()['multiply']['total'] . ' seconds' . PHP_EOL;
+    echo PHP_EOL . Profiler::getStat($solverName) . PHP_EOL;
 
     Profiler::reset();
 

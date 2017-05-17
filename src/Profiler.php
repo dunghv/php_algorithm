@@ -42,11 +42,16 @@ class Profiler
     }
 
     /**
-     * @return array
+     * @param string $key
+     * @return string
      */
-    public static function stats(): array
+    public static function getStat(string $key): string
     {
-        return self::$time;
+        if (!isset(self::$time[$key]['total'])) {
+            return '';
+        }
+
+        return self::$time[$key]['total'] . ' seconds';
     }
 
     /**
