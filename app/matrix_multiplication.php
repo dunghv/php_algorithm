@@ -6,6 +6,7 @@ use Algorithm\Matrix\Generator\MatrixGenerator;
 use Algorithm\Matrix\Multiplication\RecursiveSquareMatrixMultiplicationSolver;
 use Algorithm\Matrix\Multiplication\SimpleSquareMatrixMultiplicationSolver;
 use Algorithm\Matrix\Multiplication\StrassenSquareMatrixMultiplicationSolver;
+use Algorithm\Matrix\Subtraction\SquareMatrixSubtractionSolver;
 use Algorithm\Matrix\Summation\SquareMatrixSummationSolver;
 use Algorithm\Profiler;
 
@@ -13,14 +14,15 @@ use Algorithm\Profiler;
 $matrixFormatter = new MatrixFormatter();
 $matrixGenerator = new MatrixGenerator();
 $matrixSumSolver = new SquareMatrixSummationSolver();
+$matrixSubSolver = new SquareMatrixSubtractionSolver();
 
 $multiplicationSolvers = [
     'Simple'    => new SimpleSquareMatrixMultiplicationSolver(),
     'Recursive' => new RecursiveSquareMatrixMultiplicationSolver($matrixSumSolver),
-    'Strassen'  => new StrassenSquareMatrixMultiplicationSolver()
+    'Strassen'  => new StrassenSquareMatrixMultiplicationSolver($matrixSumSolver, $matrixSubSolver),
 ];
 
-$size = 2 ** 3;
+$size = 2 ** 6;
 $maxNumber = 10;
 
 echo 'Size:' . $size . PHP_EOL . PHP_EOL;

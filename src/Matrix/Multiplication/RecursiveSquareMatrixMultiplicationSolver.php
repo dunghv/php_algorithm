@@ -57,22 +57,26 @@ class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationS
 
         $c11 = $this->sumSolver->solve(
             $this->multiply($a, $b, $startRowA, $startColA, $startRowB, $startColB, $subMatrixSize),
-            $this->multiply($a, $b, $startRowA, $startColA2, $startRowB2, $startColB, $subMatrixSize)
+            $this->multiply($a, $b, $startRowA, $startColA2, $startRowB2, $startColB, $subMatrixSize),
+            $subMatrixSize
         );
 
         $c12 = $this->sumSolver->solve(
             $this->multiply($a, $b,  $startRowA, $startColA, $startRowB, $startColB2, $subMatrixSize),
-            $this->multiply($a, $b,  $startRowA, $startColA2, $startRowB2, $startColB2, $subMatrixSize)
+            $this->multiply($a, $b,  $startRowA, $startColA2, $startRowB2, $startColB2, $subMatrixSize),
+            $subMatrixSize
         );
 
         $c21 = $this->sumSolver->solve(
             $this->multiply($a, $b,  $startRowA2, $startColA, $startRowB, $startColB, $subMatrixSize),
-            $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB, $subMatrixSize)
+            $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB, $subMatrixSize),
+            $subMatrixSize
         );
 
         $c22 = $this->sumSolver->solve(
             $this->multiply($a, $b,  $startRowA2, $startColA, $startRowB, $startColB2, $subMatrixSize),
-            $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB2, $subMatrixSize)
+            $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB2, $subMatrixSize),
+            $subMatrixSize
         );
 
         $halfSize = count($c11);
