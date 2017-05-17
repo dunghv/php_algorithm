@@ -82,57 +82,32 @@ class StrassenSquareMatrixMultiplicationSolver implements MatrixMultiplicationSo
         $p6 = $this->multiply($s7, $s8, $subMatrixSize, 0, 0, 0, 0); //S7 * S8
         $p7 = $this->multiply($s9, $s10, $subMatrixSize, 0, 0, 0, 0); //S9 * S10
 
+        $c = [];
+
         //C11 = P5 + P4 - P2 + P6
-        $c11 = $this->sumSolver->solve(
+        $c = $this->sumSolver->solve(
             $this->subSolver->solve(
                 $this->sumSolver->solve($p5, $p4, $subMatrixSize),
                 $p2, $subMatrixSize
             ),
-            $p6, $subMatrixSize
+            $p6, $subMatrixSize, 0, 0, 0, 0, $c, 0, 0
         );
 
         //C12 = P1 + P2
-        $c12 = $this->sumSolver->solve($p1, $p2, $subMatrixSize);
+        $c = $this->sumSolver->solve($p1, $p2, $subMatrixSize, 0, 0, 0, 0, $c, 0, $subMatrixSize);
 
         //C21 = P3 + P4
-        $c21 = $this->sumSolver->solve($p3, $p4, $subMatrixSize);
+        $c = $this->sumSolver->solve($p3, $p4, $subMatrixSize, 0, 0, 0, 0, $c, $subMatrixSize, 0);
 
         //C22 = P5 + P1 - P3 - P7 ;
-        $c22 = $this->subSolver->solve(
+        $c = $this->subSolver->solve(
             $this->subSolver->solve(
                 $this->sumSolver->solve($p5, $p1, $subMatrixSize),
                 $p3, $subMatrixSize
             ),
-            $p7, $subMatrixSize
+            $p7, $subMatrixSize, 0, 0, 0, 0, $c, $subMatrixSize, $subMatrixSize
         );
 
-        // bad idea
-        $c = [];
-        $c = $this->mergeMatrix($c, $c11, 0, 0);
-        $c = $this->mergeMatrix($c, $c12, 0, $subMatrixSize);
-        $c = $this->mergeMatrix($c, $c21, $subMatrixSize, 0);
-        $c = $this->mergeMatrix($c, $c22, $subMatrixSize, $subMatrixSize);
-
         return $c;
-    }
-
-    /**
-     * @param $matrix
-     * @param $subMatrix
-     * @param int $startRow
-     * @param $startCol
-     * @return array
-     */
-    private function mergeMatrix($matrix, $subMatrix, int $startRow, $startCol): array
-    {
-        $size = count($subMatrix);
-
-        for ($row = 0; $row < $size; $row++) {
-            for ($col = 0; $col < $size; $col++) {
-                $matrix[$startRow + $row][$startCol + $col] = $subMatrix[$row][$col];
-            }
-        }
-
-        return $matrix;
     }
 }

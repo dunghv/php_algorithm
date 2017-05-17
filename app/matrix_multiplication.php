@@ -22,7 +22,7 @@ $multiplicationSolvers = [
     'Strassen'  => new StrassenSquareMatrixMultiplicationSolver($matrixSumSolver, $matrixSubSolver),
 ];
 
-$size = 2 ** 6;
+$size = 2 ** 9;
 $maxNumber = 10;
 
 echo 'Size:' . $size . PHP_EOL . PHP_EOL;
@@ -45,8 +45,6 @@ foreach ($multiplicationSolvers as $solverName => $solver) {
 
     echo PHP_EOL . $solverName;
     echo PHP_EOL . Profiler::getStat($solverName) . PHP_EOL;
-
-    Profiler::reset();
 
     if ($size < 10) {
         try {

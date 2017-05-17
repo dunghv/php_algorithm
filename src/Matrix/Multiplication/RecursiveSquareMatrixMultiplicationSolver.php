@@ -54,59 +54,36 @@ class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationS
         $startRowB2 = $startRowB + $subMatrixSize;
         $startColB2 = $startColB + $subMatrixSize;
 
-        $c11 = $this->sumSolver->solve(
+        $c = [];
+
+        // C11 = A11.B11 + A12.B21
+        $c = $this->sumSolver->solve(
             $this->multiply($a, $b, $startRowA, $startColA, $startRowB, $startColB, $subMatrixSize),
             $this->multiply($a, $b, $startRowA, $startColA2, $startRowB2, $startColB, $subMatrixSize),
-            $subMatrixSize
+            $subMatrixSize, 0, 0, 0, 0, $c, 0, 0
         );
 
-        $c12 = $this->sumSolver->solve(
+        // C12 = A12.B11 + B12.B22
+        $c = $this->sumSolver->solve(
             $this->multiply($a, $b,  $startRowA, $startColA, $startRowB, $startColB2, $subMatrixSize),
             $this->multiply($a, $b,  $startRowA, $startColA2, $startRowB2, $startColB2, $subMatrixSize),
-            $subMatrixSize
+            $subMatrixSize, 0, 0, 0, 0, $c, 0, $subMatrixSize
         );
 
-        $c21 = $this->sumSolver->solve(
+        // C21 = A21.B11 + A22.B21
+        $c = $this->sumSolver->solve(
             $this->multiply($a, $b,  $startRowA2, $startColA, $startRowB, $startColB, $subMatrixSize),
             $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB, $subMatrixSize),
-            $subMatrixSize
+            $subMatrixSize, 0, 0, 0, 0, $c, $subMatrixSize, 0
         );
 
-        $c22 = $this->sumSolver->solve(
+        // C22 = A21.B12 + A22.B22
+        $c = $this->sumSolver->solve(
             $this->multiply($a, $b,  $startRowA2, $startColA, $startRowB, $startColB2, $subMatrixSize),
             $this->multiply($a, $b,  $startRowA2, $startColA2, $startRowB2, $startColB2, $subMatrixSize),
-            $subMatrixSize
+            $subMatrixSize, 0, 0, 0, 0, $c, $subMatrixSize, $subMatrixSize
         );
 
-        $halfSize = count($c11);
-
-        // bad idea
-        $c = [];
-        $c = $this->mergeMatrix($c, $c11, 0, 0);
-        $c = $this->mergeMatrix($c, $c12, 0, $halfSize);
-        $c = $this->mergeMatrix($c, $c21, $halfSize, 0);
-        $c = $this->mergeMatrix($c, $c22, $halfSize, $halfSize);
-
         return $c;
-    }
-
-    /**
-     * @param $matrix
-     * @param $subMatrix
-     * @param int $startRow
-     * @param $startCol
-     * @return array
-     */
-    private function mergeMatrix($matrix, $subMatrix, int $startRow, $startCol): array
-    {
-        $size = count($subMatrix);
-
-        for ($row = 0; $row < $size; $row++) {
-            for ($col = 0; $col < $size; $col++) {
-                $matrix[$startRow + $row][$startCol + $col] = $subMatrix[$row][$col];
-            }
-        }
-
-        return $matrix;
     }
 }

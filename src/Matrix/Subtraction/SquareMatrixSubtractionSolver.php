@@ -18,13 +18,11 @@ class SquareMatrixSubtractionSolver implements MatrixSubtractionSolverInterface
      * @param int $startColB
      * @return array
      */
-    public function solve(array $a, array $b, int $matrixSize, int $startRowA = 0, int $startColA = 0, int $startRowB = 0, int $startColB = 0): array
+    public function solve(array $a, array $b, int $matrixSize, int $startRowA = 0, int $startColA = 0, int $startRowB = 0, int $startColB = 0, array $c = [], int $startRowC = 0, int $startColC = 0): array
     {
-        $c = [];
-
         for ($i = 0; $i < $matrixSize; $i++) {
             for ($j = 0; $j < $matrixSize; $j++) {
-                $c[$i][$j] = ($a[$startRowA + $i][$startColA + $j]??0)
+                $c[$startRowC + $i][$startColC + $j] = ($a[$startRowA + $i][$startColA + $j]??0)
                     - ($b[$startRowB + $i][$startColB + $j]??0);
             }
         }
