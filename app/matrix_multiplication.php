@@ -10,48 +10,59 @@ use Algorithm\Matrix\Subtraction\SquareMatrixSubtractionSolver;
 use Algorithm\Matrix\Summation\SquareMatrixSummationSolver;
 use Algorithm\Profiler;
 
-
 $matrixFormatter = new MatrixFormatter();
 $matrixGenerator = new MatrixGenerator();
 $matrixSumSolver = new SquareMatrixSummationSolver();
 $matrixSubSolver = new SquareMatrixSubtractionSolver();
 
+$outPutDir = __DIR__ . '/../output/';
+
+if (!@mkdir($outPutDir) && !is_dir($outPutDir)) {
+    echo 'can not create dir output';
+    return;
+}
+
 $multiplicationSolvers = [
-    'Simple'    => new SimpleSquareMatrixMultiplicationSolver(),
-    'Recursive' => new RecursiveSquareMatrixMultiplicationSolver($matrixSumSolver),
-    'Strassen'  => new StrassenSquareMatrixMultiplicationSolver($matrixSumSolver, $matrixSubSolver),
+    'Simple3For' => new SimpleSquareMatrixMultiplicationSolver(),
+    'Recursive'  => new RecursiveSquareMatrixMultiplicationSolver($matrixSumSolver),
+    'Strassen'   => new StrassenSquareMatrixMultiplicationSolver($matrixSumSolver, $matrixSubSolver),
 ];
 
-$size = 2 ** 9;
+$size = 0;
+if (defined('STDIN')) {
+    $size = $argv[1]??0;
+}
+
+if (0 === $size) {
+    echo 'Missing param. Example: php app/matrix_multiplication.php 2' . PHP_EOL;
+
+    return;
+}
+
+$size = 2 ** $size;
 $maxNumber = 10;
 
-echo 'Size:' . $size . PHP_EOL . PHP_EOL;
+echo 'Matrix size:' . $size . PHP_EOL;
 
 $a = $matrixGenerator->generate($size, $size, $maxNumber);
 $b = $matrixGenerator->generate($size, $size, $maxNumber);
 
-if ($size < 10) {
-    echo $matrixFormatter->format($a);
-    echo PHP_EOL . PHP_EOL;
-    echo $matrixFormatter->format($b);
-}
+// write input matrix
+$fileContent = $size . PHP_EOL;
+$fileContent .= $matrixFormatter->format($a) . PHP_EOL;
+$fileContent .= $matrixFormatter->format($b);
+file_put_contents($outPutDir . '/input.txt', $fileContent);
 
 /** @var \Algorithm\Matrix\Multiplication\MatrixMultiplicationSolverInterface $solver */
 foreach ($multiplicationSolvers as $solverName => $solver) {
-    echo PHP_EOL . PHP_EOL . PHP_EOL;
     Profiler::start($solverName);
     $c = $solver->solve($a, $b);
     Profiler::end($solverName);
 
-    echo PHP_EOL . $solverName;
-    echo PHP_EOL . Profiler::getStat($solverName) . PHP_EOL;
+    echo $solverName . ":\t" . Profiler::getStat($solverName) . PHP_EOL;
 
-    if ($size < 10) {
-        try {
-            echo $matrixFormatter->format($c);
-        } catch (Exception $e) {
-            /** @noinspection ForgottenDebugOutputInspection */
-            print_r($c);
-        }
-    }
+    // write result
+    $fileContent = Profiler::getStat($solverName) . PHP_EOL;
+    $fileContent .= $matrixFormatter->format($c);
+    file_put_contents($outPutDir . '/' . $solverName . '.txt', $fileContent);
 }
