@@ -2,7 +2,6 @@
 
 namespace Algorithm\Matrix\Multiplication;
 
-use Algorithm\Matrix\Helper\SquareMatrixPartition;
 use Algorithm\Matrix\Summation\MatrixSummationSolverInterface;
 
 
