@@ -36,8 +36,8 @@ class RecursiveSquareMatrixMultiplicationSolver implements MatrixMultiplicationS
      * @param array $b
      * @param int $startRowA start row of sub matrix A
      * @param int $startColA start column of sub matrix A
-     * @param int $startRowB start row of sub matrix A
-     * @param int $startColB start column of sub matrix A
+     * @param int $startRowB start row of sub matrix B
+     * @param int $startColB start column of sub matrix B
      * @param int $matrixSize
      * @return array
      */
