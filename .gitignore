@@ -1,4 +1,4 @@
 .idea
-vendor
-output
-input
+vendor/
+output/
+input/
