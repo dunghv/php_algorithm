@@ -15,7 +15,7 @@ if (!@mkdir($dirPath) && !is_dir($dirPath)) {
     return;
 }
 
-$filePath = $dirPath . 'heap_' . $heapSize . '.txt';
+$filePath = $dirPath . $heapSize . '.txt';
 $fileData = $heapSize . PHP_EOL . implode("\t", $heap);
 
 file_put_contents($filePath, $fileData);

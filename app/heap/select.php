@@ -52,21 +52,19 @@ $mySelected = array_slice($sortedArray, 0, $k);
 echo sprintf('Heap Sort: %f seconds', microtime(true) - $t) . PHP_EOL;
 //print_r($mySelected);
 
-
 /**----------------------------------------
  * Use RandomizedSelect to select smallest elements
  *----------------------------------------*/
 
 $t = microtime(true);
 $mySelected = [];
-for($i=0; $i < $k; $i++){
+
+for($i=1; $i <= $k; $i++){
     $mySelected[] = randomizedSelect($a, 0, $size-1, $i);
 }
 
 echo sprintf('Randomized Select: %f seconds', microtime(true) - $t) . PHP_EOL;
-print_r($mySelected);
-
-
+//print_r($mySelected);
 
 /**----------------------------------------
  * Functions
@@ -164,7 +162,7 @@ function maxHeapify(array &$a, int $heapSize, int $i = 0)
     }
 }
 
-function randomizedSelect(array $a, int $p, int $r, int $i)
+function randomizedSelect(array &$a, int $p, int $r, int $i)
 {
     if ($p === $r) {
         return $a[$p];
@@ -172,7 +170,7 @@ function randomizedSelect(array $a, int $p, int $r, int $i)
 
     $q = randomizedPartition($a, $p, $r);
 
-    $k = $q - $p;
+    $k = $q - $p + 1;
 
     if ($i === $k) {
         // the pivot value is the answer
@@ -200,7 +198,7 @@ function partition(array &$a, int $p, int $r)
     $i = $p - 1;
 
     for ($j = $p; $j < $r; $j++) {
-        if ($a[$j] < $x) {
+        if ($a[$j] <= $x) {
             $i++;
             exchange($a, $i, $j);
         }
