@@ -1,6 +1,6 @@
 <?php
 /*
- * a. Propose an implementation based on the Heap to select the first k order statistics from an Array A without sorting it.
+ * a. Propose an implementation based on the Heap to task2 the first k order statistics from an Array A without sorting it.
  *      Example, given A = [5, 3, 2, 6, 8, 10] and k = 3
  *      your algorithm should provide: 2, 3, 5
  * b. Do an experiment to compare the performances of your solution with
@@ -22,13 +22,12 @@ if (!defined('STDIN')) {
 
 ini_set('memory_limit', '-1');
 
-$size = (int)$argv[1]??0;
-$k = (int)$argv[2]??0;
+$file = $argv[1]??'';
 
-$a = readArray(__DIR__ . '/../../input/' . $size . '.txt');
+list($size, $k, $a) = readArrayFile(__DIR__ . '/../../' . $file);
 
-if ($size !== count($a)) {
-    echo 'incorrect array';
+if ($k > $size || $size !== count($a)) {
+    echo 'incorrect file';
 
     return;
 }
@@ -42,7 +41,7 @@ $mySelected = mySelect($a, $k);
 echo sprintf('My algorithm     : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
 
 /*----------------------------------------
- * Use Heap sort to select smallest elements
+ * Heap sort algorithm
  *----------------------------------------*/
 
 $t = microtime(true);
@@ -51,7 +50,7 @@ $mySelected = array_slice($sortedArray, 0, $k);
 echo sprintf('Heap sort        : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
 
 /*----------------------------------------
- * Use RandomizedSelect to select smallest elements
+ * RandomizedSelect Algorithm
  *----------------------------------------*/
 
 $t = microtime(true);
@@ -63,69 +62,42 @@ for ($i = 1; $i <= $k; $i++) {
 
 echo sprintf('Randomized Select: %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
 
+
+/*----------------------------------------
+ * Select Algorithm
+ *----------------------------------------*/
+
+$t = microtime(true);
+$mySelected = [];
+
+for ($i = 0; $i < $k; $i++) {
+    $mySelected[] = select($a, 0, $size - 1, $i);
+}
+
+echo sprintf('Select           : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
+
+
 /*----------------------------------------
  * Functions
  *---------------------------------------*/
 
-
 function select(array &$a, int $p, int $r, int $i)
 {
-    $x = medianOfMedian($a);
+    $x = getMedianOfMedians($a, $p, $r);
 
+    $k = partitionByX($a, $p, $r, $x);
 
-    return partitionByX($a, $p, $r, $x);
+    if ($i === $k) {
+        return $x;
+    }
+
+    if ($i < $k) {
+        return select($a, $p, $k - 1, $i);
+    }
+
+    return select($a, $k + 1, $r, $i);
 }
 
-
-/**
- * @param array $a
- * @return int
- */
-function medianOfMedian(array $a): int
-{
-    $groupsIndexes = divideToGroups5Elements($a);
-    // sort arrays
-    foreach ($groupsIndexes as $indexes) {
-        for ($i = $indexes[0]; $i <= $indexes[1]; $i++) {
-            for ($j = $indexes[0]; $j <= $indexes[1]; $j++) {
-                if ($a[$i] < $a[$j]) {
-                    exchange($a, $i, $j);
-                }
-            }
-        }
-    }
-
-    // get medians
-    $medians = [];
-    foreach ($groupsIndexes as $indexes) {
-        $medians[] = $a[$indexes[0] + ceil(($indexes[1] - $indexes[0]) / 2)];
-    }
-
-
-}
-
-
-/**
- * @param array $a
- * @return array[]
- */
-function divideToGroups5Elements(array $a): array
-{
-    $groupIndexes = [];
-    $n = count($a);
-
-    $i = 0;
-    while ($i + 4 < $n) {
-        $groupIndexes[] = [$i, $i + 4];
-        $i += 5;
-    }
-
-    if ($i < $n - 1) {
-        $groupIndexes[] = [$i, $n - 1];
-    }
-
-    return $groupIndexes;
-}
 
 /**
  * @param array $a
@@ -136,18 +108,82 @@ function divideToGroups5Elements(array $a): array
  */
 function partitionByX(array &$a, int $p, int $r, int $x): int
 {
-    $i = $p - 1;
+    $k = array_search($x, $a, false);
+    exchange($a, $k, $r);
 
-    for ($j = $p; $j <= $r; $j++) {
-        if ($a[$j] <= $a[$x]) {
-            $i++;
-            exchange($a, $i, $j);
-        }
+    return partition($a, $p, $r);
+}
+
+
+/**
+ * @param array $a
+ * @param int $p
+ * @param int $r
+ * @return int
+ */
+function getMedianOfMedians(array $a, int $p, int $r): int
+{
+    if ($r - $p + 1 <= 5) {
+        return getMedian($a, $p, $r);
     }
 
-    exchange($a, $i + 1, $r);
+    $groupsIndexes = divideToGroups5Elements($p, $r);
 
-    return $i + 1;
+    $medians = [];
+    $lastIndex = 0;
+    foreach ($groupsIndexes as $indexes) {
+        $m = getMedian($a, $indexes[0], $indexes[1]);
+
+        $medians[$lastIndex++] = $m;
+    }
+
+    return getMedianOfMedians($medians, 0, $lastIndex - 1);
+}
+
+function customSort(&$a, int $p, int $r)
+{
+    for ($i = $p; $i <= $r; $i++) {
+        for ($j = $p; $j <= $r; $j++) {
+            if ($a[$i] < $a[$j]) {
+                exchange($a, $i, $j);
+            }
+        }
+    }
+}
+
+/**
+ * @param $a
+ * @param int $start
+ * @param int $end
+ * @return int
+ */
+function getMedian($a, int $start, int $end): int
+{
+    customSort($a, $start, $end);
+    $index = $start + ceil(($end - $start) / 2);
+
+    return $a[$index];
+}
+
+/**
+ * @param int $start
+ * @param int $end
+ * @return array[]
+ */
+function divideToGroups5Elements(int $start, int $end): array
+{
+    $groups = [];
+    $n = $end - $start + 1;
+
+    for ($i = $start; $i + 4 < $n; $i += 5) {
+        $groups[] = [$i, $i + 4];
+    }
+
+    if ($i <= $end) {
+        $groups[] = [$i, $end];
+    }
+
+    return $groups;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -329,20 +365,27 @@ function exchange(array &$a, int $i, int $j)
 
 /**
  * @param string $source
- * @return array
+ * @return array [size, k, array]
  */
-function readArray(string $source): array
+function readArrayFile(string $source): array
 {
     if (!file_exists($source)) {
-        return [];
+        echo 'File does not exist:' . $source;
+        die;
     }
 
     $fileContent = file_get_contents($source);
-    $data = explode(PHP_EOL, $fileContent);
+    $rows = explode(PHP_EOL, $fileContent);
 
-    if (2 !== count($data)) {
+    if (2 !== count($rows)) {
         throw new \LogicException('Source file has invalid content');
     }
 
-    return explode("\t", $data[1]);
+    list($size, $k) = explode("\t", $rows[0]);
+
+    return [
+        (int)$size,
+        (int)$k,
+        explode("\t", $rows[1]),
+    ];
 }
