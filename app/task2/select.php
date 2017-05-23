@@ -75,6 +75,7 @@ for ($i = 0; $i < $k; $i++) {
     $mySelected[] = select($a, 0, $size - 1, $i);
 }
 
+
 echo sprintf('Select           : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
 
 /*----------------------------------------
@@ -83,12 +84,14 @@ echo sprintf('Select           : %s : %f seconds', implode(',', $mySelected), mi
 
 function select(array &$a, int $p, int $r, int $i)
 {
-    $x = getMedianOfMedians($a, $p, $r);
+    $median = getMedianOfMedians($a, $p, $r);
 
-    $k = partitionByX($a, $p, $r, $x);
+    exchange($a, $median[0], $r);
+
+    $k = partition($a, $p, $r);
 
     if ($i === $k) {
-        return $x;
+        return $median[1];
     }
 
     if ($i < $k) {
@@ -120,28 +123,28 @@ function partitionByX(array &$a, int $p, int $r, int $x): int
  * @param array $a
  * @param int $p
  * @param int $r
- * @return int
+ * @return array [medianIndex, medianValue]
  */
-function getMedianOfMedians(array $a, int $p, int $r): int
+function getMedianOfMedians(array &$a, int $p, int $r): array
 {
     if ($r - $p + 1 <= 5) {
         return getMedian($a, $p, $r);
     }
 
-    $lastIndex = 0;
-    $medians = [];
-
     $n = $r - $p + 1;
 
+    $medianIndex = 0;
     for ($i = $p; $i + 4 < $n; $i += 5) {
-        $medians[$lastIndex++] = getMedian($a, $i,  $i + 4);
+        $median = getMedian($a, $i,  $i + 4);
+        exchange($a, $median[0], $medianIndex++);
     }
 
     if ($i <= $r) {
-        $medians[$lastIndex++] = getMedian($a, $i,  $r);
+        $median = getMedian($a, $i,  $r);
+        exchange($a, $median[0], $medianIndex++);
     }
 
-    return getMedianOfMedians($medians, 0, $lastIndex - 1);
+    return getMedianOfMedians($a, 0, $medianIndex - 1);
 }
 
 /**
@@ -149,9 +152,9 @@ function getMedianOfMedians(array $a, int $p, int $r): int
  * @param int $p
  * @param int $r
  */
-function insertionSort(&$a, int $p, int $r)
+function insertionSort(array &$a, int $p, int $r)
 {
-    for ($j = 1; $j <= $r; $j++) {
+    for ($j = $p+1; $j <= $r; $j++) {
         for ($i = $j - 1; $i >= $p; $i--) {
             if ($a[$i] > $a[$i + 1]) {
                 exchange($a, $i, $i + 1);
@@ -164,14 +167,14 @@ function insertionSort(&$a, int $p, int $r)
  * @param $a
  * @param int $p
  * @param int $r
- * @return int
+ * @return array [medianIndex, medianValue]
  */
-function getMedian($a, int $p, int $r): int
+function getMedian(array &$a, int $p, int $r): array
 {
     insertionSort($a, $p, $r);
-    $index = $p + ceil(($r - $p) / 2);
+    $index = $p + floor(($r - $p) / 2);
 
-    return $a[$index];
+    return [$index, $a[$index]];
 }
 
 /**
