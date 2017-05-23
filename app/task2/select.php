@@ -24,12 +24,16 @@ ini_set('memory_limit', '-1');
 
 $file = $argv[1]??'';
 
-list($size, $k, $inputArray) = readArrayFile(__DIR__ . '/../../' . $file);
+list($size, $k, $inputArray) = readArrayFile(__DIR__ . $file);
 
 if ($k > $size || $size !== count($inputArray)) {
     echo 'incorrect file';
 
     return;
+}
+
+if (isset($argv[2]) && $argv[2] <= $size){
+    $k = (int) $argv[2];
 }
 
 /*----------------------------------------
@@ -101,24 +105,6 @@ function select(array &$a, int $p, int $r, int $i)
     return select($a, $k + 1, $r, $i);
 }
 
-
-/**
- * @param array $a
- * @param int $p
- * @param int $r
- * @param int $x
- * @return int
- */
-function partitionByX(array &$a, int $p, int $r, int $x): int
-{
-    $k = array_search($x, $a, false);
-
-    exchange($a, $k, $r);
-
-    return partition($a, $p, $r);
-}
-
-
 /**
  * @param array $a
  * @param int $p
@@ -135,12 +121,12 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
 
     $medianIndex = 0;
     for ($i = $p; $i + 4 < $n; $i += 5) {
-        $median = getMedian($a, $i,  $i + 4);
+        $median = getMedian($a, $i, $i + 4);
         exchange($a, $median[0], $medianIndex++);
     }
 
     if ($i <= $r) {
-        $median = getMedian($a, $i,  $r);
+        $median = getMedian($a, $i, $r);
         exchange($a, $median[0], $medianIndex++);
     }
 
@@ -154,7 +140,7 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
  */
 function insertionSort(array &$a, int $p, int $r)
 {
-    for ($j = $p+1; $j <= $r; $j++) {
+    for ($j = $p + 1; $j <= $r; $j++) {
         for ($i = $j - 1; $i >= $p; $i--) {
             if ($a[$i] > $a[$i + 1]) {
                 exchange($a, $i, $i + 1);
@@ -177,33 +163,7 @@ function getMedian(array &$a, int $p, int $r): array
     return [$index, $a[$index]];
 }
 
-/**
- * @param int $start
- * @param int $end
- * @return array[]
- */
-function divideToGroups5Elements(int $start, int $end): array
-{
-    $groups = [];
-    $n = $end - $start + 1;
-
-    for ($i = $start; $i + 4 < $n; $i += 5) {
-        $groups[] = [$i, $i + 4];
-    }
-
-    if ($i <= $end) {
-        $groups[] = [$i, $end];
-    }
-
-    return $groups;
-}
-
 /////////////////////////////////////////////////////////////////////////////
-
-function display(array $mySelected)
-{
-    echo implode(', ', $mySelected) . PHP_EOL . PHP_EOL;
-}
 
 function mySelect(array $a, int $k)
 {
