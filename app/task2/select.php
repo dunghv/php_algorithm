@@ -24,9 +24,9 @@ ini_set('memory_limit', '-1');
 
 $file = $argv[1]??'';
 
-list($size, $k, $a) = readArrayFile(__DIR__ . '/../../' . $file);
+list($size, $k, $inputArray) = readArrayFile(__DIR__ . '/../../' . $file);
 
-if ($k > $size || $size !== count($a)) {
+if ($k > $size || $size !== count($inputArray)) {
     echo 'incorrect file';
 
     return;
@@ -37,7 +37,7 @@ if ($k > $size || $size !== count($a)) {
  *----------------------------------------*/
 
 $t = microtime(true);
-$mySelected = mySelect($a, $k);
+$mySelected = mySelect($inputArray, $k);
 echo sprintf('My algorithm     : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
 
 /*----------------------------------------
@@ -45,18 +45,18 @@ echo sprintf('My algorithm     : %s : %f seconds', implode(',', $mySelected), mi
  *----------------------------------------*/
 
 $t = microtime(true);
-$sortedArray = heapSort($a);
+$sortedArray = heapSort($inputArray);
 $mySelected = array_slice($sortedArray, 0, $k);
 echo sprintf('Heap sort        : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
 
 /*----------------------------------------
  * RandomizedSelect Algorithm
  *----------------------------------------*/
-
 $t = microtime(true);
-$mySelected = [];
 
+$mySelected = [];
 for ($i = 1; $i <= $k; $i++) {
+    $a = $inputArray;
     $mySelected[] = randomizedSelect($a, 0, $size - 1, $i);
 }
 
@@ -71,11 +71,11 @@ $t = microtime(true);
 $mySelected = [];
 
 for ($i = 0; $i < $k; $i++) {
+    $a = $inputArray;
     $mySelected[] = select($a, 0, $size - 1, $i);
 }
 
 echo sprintf('Select           : %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
-
 
 /*----------------------------------------
  * Functions
@@ -109,6 +109,7 @@ function select(array &$a, int $p, int $r, int $i)
 function partitionByX(array &$a, int $p, int $r, int $x): int
 {
     $k = array_search($x, $a, false);
+
     exchange($a, $k, $r);
 
     return partition($a, $p, $r);
@@ -140,12 +141,12 @@ function getMedianOfMedians(array $a, int $p, int $r): int
     return getMedianOfMedians($medians, 0, $lastIndex - 1);
 }
 
-function customSort(&$a, int $p, int $r)
+function insertionSort(&$a, int $p, int $r)
 {
-    for ($i = $p; $i <= $r; $i++) {
-        for ($j = $p; $j <= $r; $j++) {
-            if ($a[$i] < $a[$j]) {
-                exchange($a, $i, $j);
+    for ($j = 1; $j <= $r; $j++) {
+        for ($i = $j - 1; $i >= $p; $i--) {
+            if ($a[$i] > $a[$i + 1]) {
+                exchange($a, $i, $i + 1);
             }
         }
     }
@@ -159,7 +160,7 @@ function customSort(&$a, int $p, int $r)
  */
 function getMedian($a, int $start, int $end): int
 {
-    customSort($a, $start, $end);
+    insertionSort($a, $start, $end);
     $index = $start + ceil(($end - $start) / 2);
 
     return $a[$index];
@@ -370,7 +371,7 @@ function exchange(array &$a, int $i, int $j)
 function readArrayFile(string $source): array
 {
     if (!file_exists($source)) {
-        echo 'File does not exist:' . $source;
+        echo 'File does not exist:' . $source . PHP_EOL;
         die;
     }
 
@@ -378,7 +379,8 @@ function readArrayFile(string $source): array
     $rows = explode(PHP_EOL, $fileContent);
 
     if (2 !== count($rows)) {
-        throw new \LogicException('Source file has invalid content');
+        echo 'Source file has invalid content' . PHP_EOL;
+        die;
     }
 
     list($size, $k) = explode("\t", $rows[0]);
