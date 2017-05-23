@@ -128,19 +128,27 @@ function getMedianOfMedians(array $a, int $p, int $r): int
         return getMedian($a, $p, $r);
     }
 
-    $groupsIndexes = divideToGroups5Elements($p, $r);
-
-    $medians = [];
     $lastIndex = 0;
-    foreach ($groupsIndexes as $indexes) {
-        $m = getMedian($a, $indexes[0], $indexes[1]);
+    $medians = [];
 
-        $medians[$lastIndex++] = $m;
+    $n = $r - $p + 1;
+
+    for ($i = $p; $i + 4 < $n; $i += 5) {
+        $medians[$lastIndex++] = getMedian($a, $i,  $i + 4);
+    }
+
+    if ($i <= $r) {
+        $medians[$lastIndex++] = getMedian($a, $i,  $r);
     }
 
     return getMedianOfMedians($medians, 0, $lastIndex - 1);
 }
 
+/**
+ * @param $a
+ * @param int $p
+ * @param int $r
+ */
 function insertionSort(&$a, int $p, int $r)
 {
     for ($j = 1; $j <= $r; $j++) {
@@ -154,14 +162,14 @@ function insertionSort(&$a, int $p, int $r)
 
 /**
  * @param $a
- * @param int $start
- * @param int $end
+ * @param int $p
+ * @param int $r
  * @return int
  */
-function getMedian($a, int $start, int $end): int
+function getMedian($a, int $p, int $r): int
 {
-    insertionSort($a, $start, $end);
-    $index = $start + ceil(($end - $start) / 2);
+    insertionSort($a, $p, $r);
+    $index = $p + ceil(($r - $p) / 2);
 
     return $a[$index];
 }
