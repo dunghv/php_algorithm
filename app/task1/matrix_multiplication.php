@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Algorithm\Matrix\Formatter\MatrixFormatter;
 use Algorithm\Matrix\Generator\MatrixGenerator;
