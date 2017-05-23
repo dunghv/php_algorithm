@@ -57,8 +57,8 @@ echo sprintf('Heap sort        : %s : %f seconds', implode(',', $mySelected), mi
 $t = microtime(true);
 $mySelected = [];
 
-for($i=1; $i <= $k; $i++){
-    $mySelected[] = randomizedSelect($a, 0, $size-1, $i);
+for ($i = 1; $i <= $k; $i++) {
+    $mySelected[] = randomizedSelect($a, 0, $size - 1, $i);
 }
 
 echo sprintf('Randomized Select: %s : %f seconds', implode(',', $mySelected), microtime(true) - $t) . PHP_EOL;
@@ -67,9 +67,94 @@ echo sprintf('Randomized Select: %s : %f seconds', implode(',', $mySelected), mi
  * Functions
  *---------------------------------------*/
 
+
+function select(array &$a, int $p, int $r, int $i)
+{
+    $x = medianOfMedian($a);
+
+
+    return partitionByX($a, $p, $r, $x);
+}
+
+
+/**
+ * @param array $a
+ * @return int
+ */
+function medianOfMedian(array $a): int
+{
+    $groupsIndexes = divideToGroups5Elements($a);
+    // sort arrays
+    foreach ($groupsIndexes as $indexes) {
+        for ($i = $indexes[0]; $i <= $indexes[1]; $i++) {
+            for ($j = $indexes[0]; $j <= $indexes[1]; $j++) {
+                if ($a[$i] < $a[$j]) {
+                    exchange($a, $i, $j);
+                }
+            }
+        }
+    }
+
+    // get medians
+    $medians = [];
+    foreach ($groupsIndexes as $indexes) {
+        $medians[] = $a[$indexes[0] + ceil(($indexes[1] - $indexes[0]) / 2)];
+    }
+
+
+}
+
+
+/**
+ * @param array $a
+ * @return array[]
+ */
+function divideToGroups5Elements(array $a): array
+{
+    $groupIndexes = [];
+    $n = count($a);
+
+    $i = 0;
+    while ($i + 4 < $n) {
+        $groupIndexes[] = [$i, $i + 4];
+        $i += 5;
+    }
+
+    if ($i < $n - 1) {
+        $groupIndexes[] = [$i, $n - 1];
+    }
+
+    return $groupIndexes;
+}
+
+/**
+ * @param array $a
+ * @param int $p
+ * @param int $r
+ * @param int $x
+ * @return int
+ */
+function partitionByX(array &$a, int $p, int $r, int $x): int
+{
+    $i = $p - 1;
+
+    for ($j = $p; $j <= $r; $j++) {
+        if ($a[$j] <= $a[$x]) {
+            $i++;
+            exchange($a, $i, $j);
+        }
+    }
+
+    exchange($a, $i + 1, $r);
+
+    return $i + 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 function display(array $mySelected)
 {
-    echo implode(', ', $mySelected) . PHP_EOL. PHP_EOL;
+    echo implode(', ', $mySelected) . PHP_EOL . PHP_EOL;
 }
 
 function mySelect(array $a, int $k)
@@ -164,7 +249,14 @@ function maxHeapify(array &$a, int $heapSize, int $i)
     }
 }
 
-function randomizedSelect(array &$a, int $p, int $r, int $i)
+/**
+ * @param array $a
+ * @param int $p
+ * @param int $r
+ * @param int $i
+ * @return int
+ */
+function randomizedSelect(array &$a, int $p, int $r, int $i): int
 {
     if ($p === $r) {
         return $a[$p];
@@ -186,6 +278,12 @@ function randomizedSelect(array &$a, int $p, int $r, int $i)
     return randomizedSelect($a, $q + 1, $r, $i - $k);
 }
 
+/**
+ * @param array $a
+ * @param int $p
+ * @param int $r
+ * @return int
+ */
 function randomizedPartition(array &$a, int $p, int $r)
 {
     $i = random_int($p, $r);
@@ -194,7 +292,13 @@ function randomizedPartition(array &$a, int $p, int $r)
     return partition($a, $p, $r);
 }
 
-function partition(array &$a, int $p, int $r)
+/**
+ * @param array $a
+ * @param int $p
+ * @param int $r
+ * @return int
+ */
+function partition(array &$a, int $p, int $r): int
 {
     $x = $a[$r];
     $i = $p - 1;
@@ -211,6 +315,11 @@ function partition(array &$a, int $p, int $r)
     return $i + 1;
 }
 
+/**
+ * @param array $a
+ * @param int $i
+ * @param int $j
+ */
 function exchange(array &$a, int $i, int $j)
 {
     $tmp = $a[$i];
@@ -218,6 +327,10 @@ function exchange(array &$a, int $i, int $j)
     $a[$j] = $tmp;
 }
 
+/**
+ * @param string $source
+ * @return array
+ */
 function readArray(string $source): array
 {
     if (!file_exists($source)) {
