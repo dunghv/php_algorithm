@@ -1,33 +1,44 @@
 <?php
 ini_set('memory_limit', '-1');
-$a = [];
+$b = [];
 for($i=0; $i< 10000000; $i++) {
-    $a[] = $i;
+    $b[] = $i;
 }
+
+$n = count($b);
 echo 'prepared array'.PHP_EOL;
 
+
 $t = microtime(true);
+$a = $b;
 foreach ($a as &$v) {
     $v++;
 }
-echo 'foreach ref: ' . (microtime(true) - $t).PHP_EOL;
+echo 'foreach reference: ' . (microtime(true) - $t).PHP_EOL;
+
+//----------------------
 
 $t = microtime(true);
+$a = $b;
 foreach ($a as $k => $v) {
-    $a[$k] = $v+1;
+    $a[$k] = $v++;
 }
 echo 'foreach: ' . (microtime(true) - $t).PHP_EOL;
 
+//----------------------
+
 $t = microtime(true);
-$n = count($a);
+$a = $b;
 for ($i = 0; $i < $n; $i++) {
     $a[$i]++;
 }
 echo 'for: ' . (microtime(true) - $t).PHP_EOL;
 
+//----------------------
+
 
 $t = microtime(true);
-$n = count($a);
+$a = $b;
 $i = 0;
 while ($i < $n) {
     $a[$i++]++;
@@ -35,8 +46,9 @@ while ($i < $n) {
 echo 'while: ' . (microtime(true) - $t).PHP_EOL;
 
 
+//----------------------
+
 $t = microtime(true);
-$n = count($a);
 $i = 0;
 do {
     $a[$i++]++;
