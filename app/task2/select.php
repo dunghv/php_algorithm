@@ -24,7 +24,7 @@ ini_set('memory_limit', '-1');
 
 $file = $argv[1]??'';
 
-list($size, $k, $inputArray) = readArrayFile(__DIR__ . $file);
+list($size, $k, $inputArray) = readArrayFile(__DIR__ .'/'. $file);
 
 if ($k > $size || $size !== count($inputArray)) {
     echo 'incorrect file';
