@@ -59,8 +59,8 @@ echo sprintf('Heap sort        : %s : %f seconds', implode(',', $mySelected), mi
 $t = microtime(true);
 
 $mySelected = [];
+$a = $inputArray;
 for ($i = 1; $i <= $k; $i++) {
-    $a = $inputArray;
     $mySelected[] = randomizedSelect($a, 0, $size - 1, $i);
 }
 
@@ -74,8 +74,8 @@ echo sprintf('Randomized Select: %s : %f seconds', implode(',', $mySelected), mi
 $t = microtime(true);
 $mySelected = [];
 
+$a = $inputArray;
 for ($i = 0; $i < $k; $i++) {
-    $a = $inputArray;
     $mySelected[] = select($a, 0, $size - 1, $i);
 }
 
@@ -354,11 +354,11 @@ function readArrayFile(string $source): array
         die;
     }
 
-    list($size, $k) = explode("\t", $rows[0]);
+    list($size, $k) = explode(' ', $rows[0]);
 
     return [
         (int)$size,
         (int)$k,
-        explode("\t", $rows[1]),
+        explode(' ', $rows[1]),
     ];
 }

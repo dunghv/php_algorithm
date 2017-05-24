@@ -17,7 +17,7 @@ if (!@mkdir($dirPath) && !is_dir($dirPath)) {
 }
 
 $filePath = $dirPath . $size . '.txt';
-$fileData = $size . "\t" . $k . PHP_EOL . implode("\t", $a);
+$fileData = $size . ' ' . $k . PHP_EOL . implode(' ', $a);
 
 file_put_contents($filePath, $fileData);
 
