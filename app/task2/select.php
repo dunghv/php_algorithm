@@ -169,13 +169,13 @@ function mySelect(array $a, int $k)
 {
     $selected = [];
 
-    while ($k-- > 0) {
-        buildMinHeap($a);
-        $selected[] = $a[0];
+    buildMinHeap($a);
+    $size = count($a);
 
-        // TODO: think about this
-        unset($a[0]);
-        $a = array_values($a);
+    while ($k-- > 0) {
+        exchange($a, 0, --$size);
+        $selected[] = array_pop($a);
+        minHeapify($a, $size, 0);
     }
 
     return $selected;
