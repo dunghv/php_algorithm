@@ -120,13 +120,14 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
     $n = $r - $p + 1;
 
     $medianIndex = $p;
-    for ($i = $p; $i + 4 < $n; $i += 5) {
-        $median = getMedian($a, $i, $i + 4);
-        exchange($a, $median[0], $medianIndex++);
-    }
+    for ($i = $p; $i < $n; $i += 5) {
+        $right = $i + 4;
 
-    if ($i <= $r) {
-        $median = getMedian($a, $i, $r);
+        if ($right > $n) {
+            $right = $n;
+        }
+
+        $median = getMedian($a, $i, $right);
         exchange($a, $median[0], $medianIndex++);
     }
 
@@ -141,10 +142,8 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
 function insertionSort(array &$a, int $p, int $r)
 {
     for ($j = $p + 1; $j <= $r; $j++) {
-        for ($i = $j - 1; $i >= $p; $i--) {
-            if ($a[$i] > $a[$i + 1]) {
-                exchange($a, $i, $i + 1);
-            }
+        for ($i = $j - 1; $i >= $p && $a[$i] > $a[$i + 1]; $i--) {
+            exchange($a, $i, $i + 1);
         }
     }
 }
