@@ -119,7 +119,7 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
 
     $n = $r - $p + 1;
 
-    $medianIndex = 0;
+    $medianIndex = $p;
     for ($i = $p; $i + 4 < $n; $i += 5) {
         $median = getMedian($a, $i, $i + 4);
         exchange($a, $median[0], $medianIndex++);
@@ -130,7 +130,7 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
         exchange($a, $median[0], $medianIndex++);
     }
 
-    return getMedianOfMedians($a, 0, $medianIndex - 1);
+    return getMedianOfMedians($a, $p, $medianIndex - 1);
 }
 
 /**
