@@ -8,15 +8,7 @@ $a = range(1, $size, 1);
 
 shuffle($a);
 
-$dirPath = __DIR__ . '/../../input/';
-
-if (!@mkdir($dirPath) && !is_dir($dirPath)) {
-    echo 'can not create directory';
-
-    return;
-}
-
-$filePath = $dirPath . $size . '.txt';
+$filePath = __DIR__ . '/' . $size . '.txt';
 $fileData = $size . "\t" . $k . PHP_EOL . implode("\t", $a);
 
 file_put_contents($filePath, $fileData);

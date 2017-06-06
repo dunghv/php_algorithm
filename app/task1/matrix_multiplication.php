@@ -15,13 +15,6 @@ $matrixGenerator = new MatrixGenerator();
 $matrixSumSolver = new SquareMatrixSummationSolver();
 $matrixSubSolver = new SquareMatrixSubtractionSolver();
 
-$outPutDir = __DIR__ . '/../output/';
-
-if (!@mkdir($outPutDir) && !is_dir($outPutDir)) {
-    echo 'can not create dir output';
-    return;
-}
-
 $multiplicationSolvers = [
     'Simple3For' => new SimpleSquareMatrixMultiplicationSolver(),
     'Recursive'  => new RecursiveSquareMatrixMultiplicationSolver($matrixSumSolver),
@@ -51,7 +44,7 @@ $b = $matrixGenerator->generate($size, $size, $maxNumber);
 $fileContent = $size . PHP_EOL;
 $fileContent .= $matrixFormatter->format($a) . PHP_EOL;
 $fileContent .= $matrixFormatter->format($b);
-file_put_contents($outPutDir . '/input_matrix.txt', $fileContent);
+file_put_contents(__DIR__ . '/input_matrix.txt', $fileContent);
 
 /** @var \Algorithm\Matrix\Multiplication\MatrixMultiplicationSolverInterface $solver */
 foreach ($multiplicationSolvers as $solverName => $solver) {
@@ -64,5 +57,5 @@ foreach ($multiplicationSolvers as $solverName => $solver) {
     // write result
     $fileContent = Profiler::getStat($solverName) . PHP_EOL;
     $fileContent .= $matrixFormatter->format($c);
-    file_put_contents($outPutDir . '/' . $solverName . '.txt', $fileContent);
+    file_put_contents(__DIR__ . '/' . $solverName . '.txt', $fileContent);
 }
