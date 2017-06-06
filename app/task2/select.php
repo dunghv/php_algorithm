@@ -59,8 +59,8 @@ echo sprintf('Heap sort        : %s : %f seconds', implode(',', $mySelected), mi
 $t = microtime(true);
 
 $mySelected = [];
+$a = $inputArray;
 for ($i = 1; $i <= $k; $i++) {
-    $a = $inputArray;
     $mySelected[] = randomizedSelect($a, 0, $size - 1, $i);
 }
 
@@ -74,8 +74,8 @@ echo sprintf('Randomized Select: %s : %f seconds', implode(',', $mySelected), mi
 $t = microtime(true);
 $mySelected = [];
 
+$a = $inputArray;
 for ($i = 0; $i < $k; $i++) {
-    $a = $inputArray;
     $mySelected[] = select($a, 0, $size - 1, $i);
 }
 
@@ -119,18 +119,19 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
 
     $n = $r - $p + 1;
 
-    $medianIndex = 0;
-    for ($i = $p; $i + 4 < $n; $i += 5) {
-        $median = getMedian($a, $i, $i + 4);
+    $medianIndex = $p;
+    for ($i = $p; $i < $n; $i += 5) {
+        $right = $i + 4;
+
+        if ($right > $n) {
+            $right = $n;
+        }
+
+        $median = getMedian($a, $i, $right);
         exchange($a, $median[0], $medianIndex++);
     }
 
-    if ($i <= $r) {
-        $median = getMedian($a, $i, $r);
-        exchange($a, $median[0], $medianIndex++);
-    }
-
-    return getMedianOfMedians($a, 0, $medianIndex - 1);
+    return getMedianOfMedians($a, $p, $medianIndex - 1);
 }
 
 /**
@@ -141,10 +142,8 @@ function getMedianOfMedians(array &$a, int $p, int $r): array
 function insertionSort(array &$a, int $p, int $r)
 {
     for ($j = $p + 1; $j <= $r; $j++) {
-        for ($i = $j - 1; $i >= $p; $i--) {
-            if ($a[$i] > $a[$i + 1]) {
-                exchange($a, $i, $i + 1);
-            }
+        for ($i = $j - 1; $i >= $p && $a[$i] > $a[$i + 1]; $i--) {
+            exchange($a, $i, $i + 1);
         }
     }
 }
@@ -169,13 +168,13 @@ function mySelect(array $a, int $k)
 {
     $selected = [];
 
-    while ($k-- > 0) {
-        buildMinHeap($a);
-        $selected[] = $a[0];
+    buildMinHeap($a);
+    $size = count($a);
 
-        // TODO: think about this
-        unset($a[0]);
-        $a = array_values($a);
+    while ($k-- > 0) {
+        exchange($a, 0, --$size);
+        $selected[] = array_pop($a);
+        minHeapify($a, $size, 0);
     }
 
     return $selected;
@@ -354,11 +353,11 @@ function readArrayFile(string $source): array
         die;
     }
 
-    list($size, $k) = explode("\t", $rows[0]);
+    list($size, $k) = explode(' ', $rows[0]);
 
     return [
         (int)$size,
         (int)$k,
-        explode("\t", $rows[1]),
+        explode(' ', $rows[1]),
     ];
 }

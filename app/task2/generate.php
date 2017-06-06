@@ -9,7 +9,7 @@ $a = range(1, $size, 1);
 shuffle($a);
 
 $filePath = __DIR__ . '/' . $size . '.txt';
-$fileData = $size . "\t" . $k . PHP_EOL . implode("\t", $a);
+$fileData = $size . "\t" . $k . PHP_EOL . implode(' ', $a);
 
 file_put_contents($filePath, $fileData);
 
