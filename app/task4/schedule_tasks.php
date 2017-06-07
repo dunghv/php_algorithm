@@ -5,18 +5,53 @@ if (!defined('STDIN')) {
     return;
 }
 
-$file = $argv[1]??'';
+$file = $argv[1]??'input.txt';
 
-$tasks = readArrayFile(__DIR__ . '/' . $file);
-$t = microtime(true);
-$orderedTasks = greedy($tasks);
-$result = getResult($orderedTasks);
+if ('test' === $file) {
+    test();
 
-echo 'Time:', microtime(true) - $t, PHP_EOL;
+    return;
+}
 
-printResult(implode(' ', $result));
+$t1 = microtime(true);
+$result = run($file);
+$t2 = microtime(true);
 
-//////////////////////////////////////////
+printResult($result);
+echo 'Time: ', $t2 - $t1, PHP_EOL;
+
+// ---------------------------------------------------------
+
+function test()
+{
+    $files = [
+        'input.txt' => '5 3 4 1 2',
+        'input2.txt' => '2 4 1 3 7 5 6',
+        'input3.txt' => '2 4 1 3',
+    ];
+
+    foreach ($files as $file => $expectedResult) {
+        $result = run($file);
+
+        if ($expectedResult !== $result) {
+            echo 'Failed: ' . $file . PHP_EOL
+                . '-> Expected: ', $expectedResult . PHP_EOL
+                . '-> Got:      ', $result . PHP_EOL . PHP_EOL;
+        } else {
+            echo 'Correct: ' . $file . ' ' . $result . PHP_EOL . PHP_EOL;
+        }
+    }
+}
+
+function run($file)
+{
+    $tasks = readArrayFile(__DIR__ . '/' . $file);
+    $orderedTasks = greedy($tasks);
+    $result = getResult($orderedTasks);
+
+    return implode(' ', $result);
+}
+
 
 function greedy(array $tasks)
 {
@@ -35,6 +70,8 @@ function greedy(array $tasks)
             insertToLatelyTasks($mostPenaltyTask, $lately);
         }
     }
+
+    echo 'Early: ' . implode(' ', getResult($early)) . PHP_EOL;
 
     return array_merge($early, $lately);
 }
@@ -67,47 +104,33 @@ function insertToEarlyTasks(array $newTask, array &$earlyTasks)
 {
     $n = count($earlyTasks);
 
-    // nhét vào vị trí đầu tiên
-    if (0 === $n) {
-        $earlyTasks[] = $newTask;
+    // check all positions
+    for ($i = 0; $i < $n; $i++) {
+        if ($newTask['deadline'] > $earlyTasks[$i]['deadline']) {
+            continue;
+        }
+
+        // if insert at index i, that can break all the rest elements
+        for ($j = $i; $j < $n; $j++) {
+            if ($j + 1 >= $earlyTasks[$j]['deadline']) {
+                return false;
+            }
+        }
+
+        if ($newTask['deadline'] === $earlyTasks[$i]['deadline']
+            && $newTask['task'] > $earlyTasks[$i]['task']
+        ) {
+            $i++;
+        }
+
+        insert($newTask, $earlyTasks, $i, $n);
 
         return true;
     }
 
-
-    if (
-        // if can not insert at last
-        $n >= $newTask['deadline']
-        // if insert will break the last one
-        && $n + 1 > $earlyTasks[$n - 1]['deadline']
-    ) {
-        return false;
-    }
-
-    for ($i = 0; $i < $n; $i++) {
-        if ($newTask['deadline'] < $earlyTasks[$i]['deadline']) {
-            insert($newTask, $earlyTasks, $i, $n);
-
-            return true;
-        }
-
-        if ($newTask['deadline'] === $earlyTasks[$i]['deadline']
-            && $newTask['task'] < $earlyTasks[$i]['task']
-            && (
-                !isset($earlyTasks[$i + 1]['task'])
-                || ($newTask['task'] > $earlyTasks[$i + 1]['task'] && $newTask['deadline'] === $earlyTasks[$i + 1]['deadline'])
-            )
-        ) {
-            insert($newTask, $earlyTasks, $i, $n);
-
-            return true;
-        }
-    }
-
-    // nhét vào vị trí cuối cùng
-
-    if ($n < $newTask['deadline']) {
-        $earlyTasks[$i] = $newTask;
+    // insert at last
+    if ($n <= $newTask['deadline']) {
+        $earlyTasks[$n] = $newTask;
 
         return true;
     }
@@ -115,11 +138,11 @@ function insertToEarlyTasks(array $newTask, array &$earlyTasks)
     return false;
 }
 
-function insert(array $newTask, array &$tasks, int $insertIndex, int $n)
+function insert(array $newTask, array &$tasks, int $insertIndex, int $lastIndex)
 {
-    while ($n > $insertIndex) {
-        $tasks[$n] = $tasks[$n - 1];
-        $n--;
+    while ($lastIndex > $insertIndex) {
+        $tasks[$lastIndex] = $tasks[$lastIndex - 1];
+        $lastIndex--;
     }
 
     $tasks[$insertIndex] = $newTask;
@@ -182,6 +205,8 @@ function getResult(array $tasks)
 
 function printResult(string $content)
 {
+    echo $content . PHP_EOL;
+
     file_put_contents('output.txt', $content);
 }
 
@@ -205,8 +230,8 @@ function readArrayFile(string $source): array
     }
 
     $size = (int)$rows[0];
-    $deadlines = explode(' ', $rows[1]);
-    $penalties = explode(' ', $rows[2]);
+    $deadlines = explode(' ', trim($rows[1]));
+    $penalties = explode(' ', trim($rows[2]));
 
     if ($size !== count($deadlines)) {
         echo 'invalid deadlines';
@@ -222,9 +247,9 @@ function readArrayFile(string $source): array
 
     for ($i = 0; $i < $size; $i++) {
         $tasks[] = [
-            'task'     => $i + 1,
+            'task' => $i + 1,
             'deadline' => (int)$deadlines[$i],
-            'penalty'  => (int)$penalties[$i],
+            'penalty' => (int)$penalties[$i],
         ];
     }
 
